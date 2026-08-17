@@ -1,2 +1,3 @@
 [2026-08-17 23:53:55] feat: add voice-first assistant workflow
 [2026-08-17 23:53:56] fix: stabilize whisper model path on Windows
+[2026-08-17 23:53:56] feat: integrate AI provider switching
