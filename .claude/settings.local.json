@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo build:*)",
+      "Bash(Scripts/pip install:*)",
+      "Bash(npm run tauri:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(timeout /t 2 /nobreak)",
+      "Bash(timeout /t 15 /nobreak)",
+      "Bash(cargo clean:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"setup_whisper.ps1\" -WhatIf)",
+      "Bash(dir C:whisper)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command \"Get-ChildItem C:\\whisper\")",
+      "Bash(powershell -Command \"Get-ChildItem C:\\whisper\\models\")",
+      "Bash(powershell -Command \"[System.Environment]::GetEnvironmentVariable(''WHISPER_PATH'', ''User'')\")",
+      "Bash(powershell -Command:*)",
+      "Bash(tasklist:*)",
+      "Bash(.venv-ttsScriptspython.exe scriptstts_server.py 5050)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(.venv-ttsScriptspip install waitress)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

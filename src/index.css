@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #fff8f7;
+  --bg-secondary: #f8f1f2;
+  --panel: rgba(255, 255, 255, 0.88);
+  --panel-strong: #ffffff;
+  --surface-soft: #f7edf0;
+  --border-soft: rgba(110, 48, 58, 0.12);
+  --text-primary: #2d151b;
+  --text-secondary: #6f4a52;
+  --text-muted: #8d6a72;
+  --brand: #7c2d3a;
+  --brand-strong: #5b1f2e;
+  --brand-soft: #f2dfe3;
+  --brand-glow: rgba(124, 45, 58, 0.15);
+  --shadow-soft: 0 16px 40px rgba(106, 36, 50, 0.08);
+}
+
+/* @group BaseTypography : Root font size for consistent rem-based scaling across the app */
+html {
+  font-size: 14px;
+  background: linear-gradient(180deg, #fffaf9 0%, #f8efef 100%);
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fffaf9 0%, #f4ecee 100%);
+  color: var(--text-primary);
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+button, input, select {
+  font-family: inherit;
+}
+
+/* @group Scrollbar : Thin themed scrollbar for all scrollable elements */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 45, 58, 0.35) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(124, 45, 58, 0.35);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 45, 58, 0.6);
+}
+
+/* @group AudioWaveform : Animated waveform bars for TTS playback indicator */
+@keyframes wavebar {
+  0%, 100% { transform: scaleY(0.25); opacity: 0.7; }
+  50%       { transform: scaleY(1); opacity: 1; }
+}
+
+.wavebar {
+  width: 3px;
+  border-radius: 9999px;
+  transform-origin: bottom;
+  animation: wavebar 0.75s ease-in-out infinite;
+  background: linear-gradient(180deg, #c75d73 0%, #7c2d3a 100%);
+}
+
+/* @group SpeakingCaption : Fade in/out for the current sentence caption */
+@keyframes caption-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.caption-enter {
+  animation: caption-in 0.2s ease-out forwards;
+}
