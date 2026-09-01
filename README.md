@@ -31,3 +31,9 @@ Antarman is a privacy-first AI desktop assistant designed for personal productiv
 
 ## Evaluation note
 This project demonstrates practical full-stack integration across frontend, desktop shell, local storage, AI providers, and multimedia processing. It is suitable for academic evaluation because it combines technical depth with a polished user experience and clear setup documentation.
+
+## Submission readiness
+- Project builds successfully with `npm run build`
+- Setup guide is documented for Windows and local dependencies
+- Configurations for Whisper and TTS are included
+- GitHub repository is kept aligned with the final project state

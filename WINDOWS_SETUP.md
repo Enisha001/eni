@@ -14,8 +14,8 @@ Quick guide to get Antarman running on Windows with full voice features.
 
 ```powershell
 # Clone the repository
-git clone https://github.com/yourusername/antarman.git
-cd antarman
+git clone https://github.com/Enisha001/eni.git
+cd eni
 
 # Install Node dependencies
 npm install
