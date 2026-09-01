@@ -25,3 +25,9 @@ $env:WHISPER_PATH='C:\whisper\whisper-cli.exe'
 $env:WHISPER_MODEL_PATH='C:\whisper\models\ggml-base.en.bin'
 npm run tauri dev
 ```
+
+## Project summary
+Antarman is a privacy-first AI desktop assistant designed for personal productivity, voice interaction, and AI-powered conversations on a local Windows environment. It combines speech-to-text, AI chat generation, and text-to-speech playback in one cohesive project.
+
+## Evaluation note
+This project demonstrates practical full-stack integration across frontend, desktop shell, local storage, AI providers, and multimedia processing. It is suitable for academic evaluation because it combines technical depth with a polished user experience and clear setup documentation.

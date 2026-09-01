@@ -238,8 +238,9 @@ Total: ~2 GB
 ## 📚 Next Steps
 
 - Read the full [README.md](README.md) for detailed documentation
-- Check out the [Architecture](#) section to understand how it works
-- Join our community for support
+- Review the project report in [REPORT.md](REPORT.md)
+- Use the checklist in [docs/submission-checklist.md](docs/submission-checklist.md) before final submission
+- Confirm the app is working end-to-end before evaluation
 
 ## 🎯 Performance Tips
 
