@@ -63,6 +63,11 @@ source ~/.bashrc
 # Install Coqui TTS
 pip install TTS
 
+# Coqui TTS 0.22.0 doesn't cap the transformers version it depends on, so a plain
+# `pip install TTS` pulls whatever is latest — which breaks XTTS v2 loading (missing
+# BeamSearchScorer / weights_only errors). Pin a known-compatible version:
+pip install "transformers==4.36.2"
+
 # Verify installation
 tts --help
 
@@ -168,14 +173,15 @@ tts --text "Testing voice cloning" \
 
 ### "Whisper executable not found"
 ```bash
-# Check if whisper is built
-ls -la ~/whisper.cpp/main
+# Recent whisper.cpp builds rename the CLI binary to whisper-cli (main is now just
+# a deprecation stub that prints a warning and exits without transcribing anything).
+ls -la ~/whisper.cpp/build/bin/whisper-cli
 
-# If not, rebuild
-cd ~/whisper.cpp && make clean && make
+# If not, build it
+cd ~/whisper.cpp && cmake -B build && cmake --build build --config Release
 
-# Set environment variable
-export WHISPER_PATH=~/whisper.cpp/main
+# Set environment variable to the modern binary
+export WHISPER_PATH=~/whisper.cpp/build/bin/whisper-cli
 ```
 
 ### "TTS not found"
@@ -185,9 +191,22 @@ pip show TTS
 
 # If not, install
 pip install TTS
+pip install "transformers==4.36.2"  # see note above — required for XTTS v2 to load
 
 # If using virtualenv, activate it first
 ```
+
+### Voice-cloned replies never arrive / message sending hangs for ~2 minutes
+This means TTS synthesis is failing silently in the background (check the app's console
+output for `[TTS SERVER]` or `[STREAM] TTS failed` lines). Two known causes with old
+Coqui TTS 0.22.0:
+- `cannot import name 'BeamSearchScorer' from 'transformers'` — your `transformers`
+  version is too new. Fix: `pip install "transformers==4.36.2"`.
+- `Weights only load failed ... Unsupported global: TTS.tts.configs.xtts_config.XttsConfig`
+  — your `torch` version is >=2.6, which changed `torch.load`'s default to
+  `weights_only=True`. `scripts/tts_server.py` already patches around this; if you're
+  invoking XTTS v2 from your own script, apply the same `torch.load` patch shown there
+  before importing `TTS.api`.
 
 ### "No audio input device"
 ```bash

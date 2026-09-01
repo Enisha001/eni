@@ -464,6 +464,14 @@ function App() {
           }
         } catch (ttsErr) {
           console.error(`[STREAM] TTS failed for sentence ${item.index}:`, ttsErr);
+          // Still record this index as settled (with no audio) so the completion
+          // check below (nextToPlay >= totalSentences) isn't stuck waiting forever
+          // on a sentence that will never produce audio.
+          if (!cancelRequestedRef.current && ttsSessionRef.current === sessionId) {
+            audioQueue.push({ index: item.index, audioPaths: [], sentence: item.sentence });
+            audioQueue.sort((a, b) => a.index - b.index);
+            playNext();
+          }
         }
       }
       ttsWorkerRunning = false;

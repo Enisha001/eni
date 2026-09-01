@@ -25,8 +25,8 @@ export default defineConfig(async () => ({
         }
       : undefined,
     watch: {
-      // 3. tell Vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**"],
+      // 3. tell Vite to ignore local build and generated directories, including locked Windows files in excluded/
+      ignored: ["**/src-tauri/**", "**/excluded/**"],
     },
   },
 }));

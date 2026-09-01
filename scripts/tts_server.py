@@ -7,7 +7,6 @@ import json
 import logging
 from pathlib import Path
 from flask import Flask, request, jsonify, send_file
-from TTS.api import TTS
 import tempfile
 import os
 import torch
@@ -15,6 +14,20 @@ import threading
 
 # Agree to Coqui TOS
 os.environ["COQUI_TOS_AGREED"] = "1"
+
+# @group BusinessLogic > TorchCompat : PyTorch >=2.6 flipped torch.load's default to
+# weights_only=True, which breaks Coqui TTS 0.22.0's XTTS checkpoint loader (it doesn't
+# allowlist the config classes the checkpoint pickles). The checkpoint is downloaded
+# straight from Coqui's own model hub by TTS.api, so restoring the old, unrestricted
+# load behavior for it is safe. Must run before `TTS.api` is imported, since that import
+# chain calls torch.load as a side effect of loading the default vocoder config.
+_torch_load = torch.load
+def _torch_load_compat(*args, **kwargs):
+    kwargs.setdefault('weights_only', False)
+    return _torch_load(*args, **kwargs)
+torch.load = _torch_load_compat
+
+from TTS.api import TTS
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='[TTS SERVER] %(message)s')

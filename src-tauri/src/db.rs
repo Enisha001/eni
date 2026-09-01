@@ -759,3 +759,109 @@ pub async fn get_check_ins(limit: u32) -> Result<Vec<CheckIn>> {
     }
     Ok(result)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // --- compute_sentiment: positive / negative / neutral / mixed / empty ---
+
+    #[test]
+    fn compute_sentiment_scores_positive_message_above_zero() {
+        let score = compute_sentiment("I feel happy and grateful and excited today");
+        assert!(score > 0.0, "expected positive score, got {score}");
+    }
+
+    #[test]
+    fn compute_sentiment_scores_negative_message_below_zero() {
+        let score = compute_sentiment("I feel anxious and stressed and hopeless right now");
+        assert!(score < 0.0, "expected negative score, got {score}");
+    }
+
+    #[test]
+    fn compute_sentiment_scores_neutral_message_as_zero() {
+        let score = compute_sentiment("The meeting is scheduled for three o'clock tomorrow");
+        assert_eq!(score, 0.0);
+    }
+
+    #[test]
+    fn compute_sentiment_scores_mixed_message_toward_center() {
+        // Equal positive and negative keyword hits should roughly cancel out.
+        let score = compute_sentiment("I am happy about the result but sad about the delay");
+        assert!(score.abs() < 0.5, "expected mixed message near zero, got {score}");
+    }
+
+    #[test]
+    fn compute_sentiment_handles_empty_string_without_panicking() {
+        let score = compute_sentiment("");
+        assert_eq!(score, 0.0);
+    }
+
+    #[test]
+    fn compute_sentiment_is_case_insensitive() {
+        let lower = compute_sentiment("this is a great and wonderful day");
+        let upper = compute_sentiment("THIS IS A GREAT AND WONDERFUL DAY");
+        assert_eq!(lower, upper);
+    }
+
+    #[test]
+    fn compute_sentiment_stays_within_bounds() {
+        let very_positive = compute_sentiment(
+            "happy good great excellent joy love wonderful amazing fantastic excited",
+        );
+        let very_negative = compute_sentiment(
+            "sad bad terrible awful hate angry frustrated anxious worried fear",
+        );
+        assert!(very_positive <= 1.0);
+        assert!(very_negative >= -1.0);
+    }
+
+    // --- length normalisation: sqrt(word_count) division ---
+
+    #[test]
+    fn compute_sentiment_normalizes_by_message_length() {
+        // One positive keyword in a short message should score higher than the
+        // same single keyword diluted inside a much longer neutral message.
+        let short = compute_sentiment("happy");
+        let long = compute_sentiment(
+            "happy and then there were many other neutral words filling out this message",
+        );
+        assert!(short > long, "short={short}, long={long}");
+    }
+
+    // --- extract_db_name: MongoDB URI parsing ---
+
+    #[test]
+    fn extract_db_name_parses_standard_srv_uri() {
+        let uri = "mongodb+srv://user:pass@cluster0.mongodb.net/antarman?retryWrites=true";
+        assert_eq!(extract_db_name(uri), Some("antarman".to_string()));
+    }
+
+    #[test]
+    fn extract_db_name_parses_uri_without_query_string() {
+        let uri = "mongodb://localhost:27017/antarman_dev";
+        assert_eq!(extract_db_name(uri), Some("antarman_dev".to_string()));
+    }
+
+    #[test]
+    fn extract_db_name_returns_none_when_no_database_segment_present() {
+        let uri = "mongodb+srv://user:pass@cluster0.mongodb.net/";
+        assert_eq!(extract_db_name(uri), None);
+    }
+
+    // --- truncate: multibyte-safe string truncation ---
+
+    #[test]
+    fn truncate_leaves_short_strings_unchanged() {
+        assert_eq!(truncate("hello", 10), "hello");
+    }
+
+    #[test]
+    fn truncate_is_multibyte_safe_and_does_not_panic_mid_character() {
+        // Each of these characters is multi-byte in UTF-8; truncating by byte
+        // index instead of char index would panic or split a character.
+        let text = "日本語のテキストです";
+        let result = truncate(text, 3);
+        assert_eq!(result, "日本語...");
+    }
+}

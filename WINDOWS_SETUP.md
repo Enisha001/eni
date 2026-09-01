@@ -55,6 +55,11 @@ Or double-click `setup_whisper.bat` in File Explorer.
 # Install Coqui TTS
 pip install TTS
 
+# Coqui TTS 0.22.0 doesn't cap the transformers version it depends on, so a plain
+# `pip install TTS` pulls whatever is latest — which breaks XTTS v2 loading (missing
+# BeamSearchScorer / weights_only errors). Pin a known-compatible version:
+pip install "transformers==4.36.2"
+
 # Verify installation
 tts --help
 ```
@@ -89,13 +94,33 @@ npm run tauri dev
 
 ### "Whisper executable not found"
 
-1. Verify installation: Check if `C:\whisper\main.exe` exists
+1. Verify installation: Check if `C:\whisper\whisper-cli.exe` exists
 2. Check environment variable:
    ```powershell
    echo $env:WHISPER_PATH
    ```
 3. Restart your terminal/IDE
 4. If still not working, restart your computer
+
+### Speech-to-text fails immediately with a "main.exe is deprecated" warning
+
+Recent whisper.cpp releases renamed the transcription binary from `main.exe` to
+`whisper-cli.exe`; the `main.exe` that now ships is just a stub that prints this
+deprecation warning and exits without transcribing anything. Fix:
+
+1. Make sure `C:\whisper\whisper-cli.exe` exists (re-run `setup_whisper.ps1`, or
+   download `whisper-bin-x64.zip` from the
+   [whisper.cpp releases page](https://github.com/ggerganov/whisper.cpp/releases)
+   yourself and extract it).
+2. `whisper-cli.exe` is dynamically linked — copy the **whole** extracted folder
+   into `C:\whisper\`, not just the exe, so `ggml*.dll`, `whisper.dll`, and
+   `llama.dll` end up alongside it. A missing DLL causes the same kind of silent
+   failure.
+3. Point `WHISPER_PATH` at `whisper-cli.exe`, not `main.exe`:
+   ```powershell
+   [System.Environment]::SetEnvironmentVariable("WHISPER_PATH", "C:\whisper\whisper-cli.exe", "User")
+   ```
+4. Restart your terminal/IDE so the updated environment variable is picked up.
 
 ### "Whisper model not found"
 
@@ -111,6 +136,19 @@ npm run tauri dev
 1. Verify Python installation: `python --version`
 2. Verify TTS installation: `tts --help`
 3. If not found, reinstall: `pip install TTS --upgrade`
+
+### Voice-cloned replies never arrive / message sending hangs for ~2 minutes
+
+This means TTS synthesis is failing silently in the background (check the app's console
+output for `[TTS SERVER]` or `[STREAM] TTS failed` lines). Two known causes with old
+Coqui TTS 0.22.0:
+- `cannot import name 'BeamSearchScorer' from 'transformers'` — your `transformers`
+  version is too new. Fix: `pip install "transformers==4.36.2"`.
+- `Weights only load failed ... Unsupported global: TTS.tts.configs.xtts_config.XttsConfig`
+  — your `torch` version is >=2.6, which changed `torch.load`'s default to
+  `weights_only=True`. `scripts/tts_server.py` already patches around this; if you're
+  invoking XTTS v2 from your own script, apply the same `torch.load` patch shown there
+  before importing `TTS.api`.
 
 ### Build Errors
 

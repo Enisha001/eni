@@ -69,21 +69,27 @@ if (Test-Path $extractPath) {
 }
 Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
 
-# Find and copy the modern whisper executable when available
+# Find and copy the modern whisper executable when available.
+# whisper-cli.exe is dynamically linked against ggml*.dll / whisper.dll / llama.dll —
+# copying just the exe leaves it unable to launch, so copy every file that sits next
+# to it (the whole build output folder) rather than cherry-picking one file.
 $cliExe = Get-ChildItem -Path $extractPath -Filter "whisper-cli.exe" -Recurse | Select-Object -First 1
 if ($cliExe) {
-    Copy-Item -Path $cliExe.FullName -Destination (Join-Path $InstallPath "whisper-cli.exe") -Force
-    Write-Host "      Installed whisper-cli.exe to $InstallPath" -ForegroundColor Gray
+    Copy-Item -Path (Join-Path $cliExe.Directory.FullName "*") -Destination $InstallPath -Recurse -Force -Exclude "*.pdb"
+    Write-Host "      Installed whisper-cli.exe (and required DLLs) to $InstallPath" -ForegroundColor Gray
 } elseif (Get-ChildItem -Path $extractPath -Filter "main.exe" -Recurse | Select-Object -First 1) {
     $mainExe = Get-ChildItem -Path $extractPath -Filter "main.exe" -Recurse | Select-Object -First 1
-    Copy-Item -Path $mainExe.FullName -Destination (Join-Path $InstallPath "main.exe") -Force
-    Write-Host "      Installed main.exe to $InstallPath" -ForegroundColor Gray
+    Write-Host "      Warning: this whisper.cpp build only ships the deprecated 'main.exe' stub," -ForegroundColor Yellow
+    Write-Host "      which prints a deprecation notice and exits without transcribing anything." -ForegroundColor Yellow
+    Copy-Item -Path (Join-Path $mainExe.Directory.FullName "*") -Destination $InstallPath -Recurse -Force -Exclude "*.pdb"
+    Write-Host "      Installed main.exe (and any DLLs) to $InstallPath" -ForegroundColor Gray
 } else {
     # Try to find whisper.exe or any executable
     $anyExe = Get-ChildItem -Path $extractPath -Filter "*.exe" -Recurse | Select-Object -First 1
     if ($anyExe) {
-        Copy-Item -Path $anyExe.FullName -Destination (Join-Path $InstallPath "whisper-cli.exe") -Force
-        Write-Host "      Installed $($anyExe.Name) as whisper-cli.exe to $InstallPath" -ForegroundColor Gray
+        Copy-Item -Path (Join-Path $anyExe.Directory.FullName "*") -Destination $InstallPath -Recurse -Force -Exclude "*.pdb"
+        Rename-Item -Path (Join-Path $InstallPath $anyExe.Name) -NewName "whisper-cli.exe" -Force
+        Write-Host "      Installed $($anyExe.Name) (and any DLLs) as whisper-cli.exe to $InstallPath" -ForegroundColor Gray
     } else {
         Write-Host "      Warning: No executable found in download" -ForegroundColor Yellow
         Write-Host "      You may need to build whisper.cpp manually" -ForegroundColor Yellow
