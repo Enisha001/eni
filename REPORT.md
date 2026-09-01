@@ -143,6 +143,9 @@ The completed project successfully demonstrates a functional AI assistant with:
 
 The implementation meets the goals of a final-year software project by combining system design, user-focused development, AI integration, and deployment readiness.
 
+## Future Scope
+Although the current version is fully functional for a project submission, there are several areas for future enhancement, including broader offline support, deeper personalization, more advanced speech analytics, and richer local data management. These future improvements would help extend the assistant into a more comprehensive personal productivity platform.
+
 ## Conclusion
 Antarman presents a practical and modern solution for personal AI assistance in a local desktop environment. It demonstrates the ability to design and implement a software system that blends conversational AI, voice processing, and user-centric features into a single application.
 
@@ -154,4 +157,4 @@ The project is a strong submission-ready demonstration of software engineering, 
 - Outcome: Project compiled successfully and generated production assets without build errors
 
 ## Final Note
-This project is positioned as a complete and polished final-year submission that balances practical functionality with a clean user experience and a strong technical foundation.
+This project is positioned as a complete and polished final-year submission that balances practical functionality with a clean user experience and a strong technical foundation. It reflects thoughtful software design, realistic integration work, and a user-focused product mindset.
